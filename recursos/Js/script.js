@@ -26,14 +26,25 @@ document.addEventListener("DOMContentLoaded", () => {
         addMessage(message, "user");
         userInput.value = "";
 
-        fetch("chatbot.php", {
+        const url = "chatbot.php";
+        console.log("Tentando acessar:", url);
+
+        fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `message=${encodeURIComponent(message)}`
         })
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
         .then(reply => addMessage(reply, "bot"))
-        .catch(() => addMessage("Erro ao se comunicar com o chatbot.", "bot"));
+        .catch(error => {
+            console.error("Erro ao se comunicar com o servidor:", error);
+            addMessage("Erro ao se comunicar com o chatbot.", "bot");
+        });
     }
 
     function addMessage(text, type) {
